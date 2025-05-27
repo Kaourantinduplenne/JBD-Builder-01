@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Draggable from 'react-draggable';
 import { Rnd } from 'react-rnd';
+import html2canvas from 'html2canvas';
 
 const colorPalette = ['#FFB511', '#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1', '#955251', '#B565A7'];
 
@@ -65,7 +66,7 @@ export default function RigJBDBuilder() {
   };
 
   const addArrow = () => {
-    setArrows([...arrows, { id: Date.now(), x: 20, y: 20, w: 60, h: 10, direction: 'horizontal' }]);
+    setArrows([...arrows, { id: Date.now(), x: 20, y: 20, w: 60, h: 10, rotate: 0 }]);
   };
 
   const updateArrow = (id, updates) => {
@@ -86,7 +87,7 @@ export default function RigJBDBuilder() {
     const canvas = await html2canvas(input);
     const dataUrl = canvas.toDataURL('image/png');
     const win = window.open();
-    win.document.write('<iframe src="' + dataUrl + '" width="800"></iframe>');
+    win.document.write('<img src="' + dataUrl + '" width="800" />');
   };
 
   return (
@@ -158,7 +159,7 @@ export default function RigJBDBuilder() {
             <Rnd key={z.id} size={{ width: z.w, height: z.h }} position={{ x: z.x, y: z.y }}
               onDragStop={(e, d) => updateZone(z.id, { x: d.x, y: d.y })}
               onResizeStop={(e, dir, ref, delta, pos) => updateZone(z.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), ...pos })}
-              style={{ backgroundColor: z.color, opacity: 0.9 }}>
+              style={{ backgroundColor: z.color, opacity: 0.2, border: `2px dashed ${z.color}` }}>
               <button onClick={() => deleteZone(z.id)}>❌</button>
             </Rnd>
           ))}
@@ -166,14 +167,11 @@ export default function RigJBDBuilder() {
             <Rnd key={a.id} size={{ width: a.w, height: a.h }} position={{ x: a.x, y: a.y }}
               onDragStop={(e, d) => updateArrow(a.id, { x: d.x, y: d.y })}
               onResizeStop={(e, dir, ref, delta, pos) => updateArrow(a.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), ...pos })}
-              style={{ backgroundColor: 'blue' }}>
-              <div style={{ transform: a.direction === 'vertical' ? 'rotate(90deg)' : a.direction === 'left' ? 'rotate(45deg)' : a.direction === 'right' ? 'rotate(-45deg)' : 'none', color: 'white' }}>
-                ➡
-              </div>
-              <button onClick={() => updateArrow(a.id, { direction: 'horizontal' })}>↔</button>
-              <button onClick={() => updateArrow(a.id, { direction: 'vertical' })}>↕</button>
-              <button onClick={() => updateArrow(a.id, { direction: 'left' })}>↖</button>
-              <button onClick={() => updateArrow(a.id, { direction: 'right' })}>↘</button>
+              style={{ backgroundColor: 'blue', transform: `rotate(${a.rotate}deg)` }}>
+              <button onClick={() => updateArrow(a.id, { rotate: 0 })}>↔</button>
+              <button onClick={() => updateArrow(a.id, { rotate: 90 })}>↕</button>
+              <button onClick={() => updateArrow(a.id, { rotate: 45 })}>↖</button>
+              <button onClick={() => updateArrow(a.id, { rotate: -45 })}>↘</button>
               <button onClick={() => deleteArrow(a.id)}>❌</button>
             </Rnd>
           ))}
