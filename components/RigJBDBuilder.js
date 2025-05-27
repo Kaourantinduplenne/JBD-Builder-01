@@ -3,11 +3,14 @@ import React, { useState } from 'react';
 import Draggable from 'react-draggable';
 import { Rnd } from 'react-rnd';
 
+const colorPalette = ['#FFB511', '#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#92A8D1', '#955251', '#B565A7'];
+
 export default function RigJBDBuilder() {
   const [operation, setOperation] = useState('');
   const [rig, setRig] = useState('');
   const [pic, setPic] = useState('');
   const [lofHazard, setLofHazard] = useState('');
+  const [diagram, setDiagram] = useState('Drillfloor');
   const [workers, setWorkers] = useState([]);
   const [workerInput, setWorkerInput] = useState('');
   const [tasks, setTasks] = useState([]);
@@ -80,12 +83,21 @@ export default function RigJBDBuilder() {
         <textarea placeholder="Line of Fire Hazard" value={lofHazard} onChange={(e) => setLofHazard(e.target.value)} style={{ width: '100%', margin: '5px 0' }} />
 
         <div style={{ margin: '10px 0' }}>
+          <label>Select Diagram:</label>
+          <select value={diagram} onChange={(e) => setDiagram(e.target.value)} style={{ width: '100%', margin: '5px 0' }}>
+            <option value="Drillfloor">Drillfloor</option>
+            <option value="Helideck">Helideck</option>
+            <option value="Deck">Deck</option>
+          </select>
+        </div>
+
+        <div style={{ margin: '10px 0' }}>
           <input placeholder="Add Personnel" value={workerInput} onChange={(e) => setWorkerInput(e.target.value)} />
           <button onClick={addWorker}>Add</button>
           <ul>
             {workers.map((w, i) => (
               <li key={i}>
-                <span style={{ backgroundColor: '#FFB511', borderRadius: '50%', padding: '4px 8px', marginRight: '8px' }}>{i + 1}</span>
+                <span style={{ backgroundColor: colorPalette[i % colorPalette.length], borderRadius: '50%', padding: '4px 8px', marginRight: '8px' }}>{i + 1}</span>
                 {w} <button onClick={() => deleteWorker(i)}>❌</button>
               </li>
             ))}
@@ -110,6 +122,7 @@ export default function RigJBDBuilder() {
         </div>
 
         <div style={{ position: 'relative', width: '800px', height: '400px', border: '1px solid white' }}>
+          <img src={`/${diagram}.png`} alt={diagram} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           {zones.map(z => (
             <Rnd key={z.id} size={{ width: z.w, height: z.h }} position={{ x: z.x, y: z.y }}
               onDragStop={(e, d) => updateZone(z.id, { x: d.x, y: d.y })}
