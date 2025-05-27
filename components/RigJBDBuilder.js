@@ -18,6 +18,7 @@ export default function RigJBDBuilder() {
   const [selectedWorkers, setSelectedWorkers] = useState([]);
   const [zones, setZones] = useState([]);
   const [arrows, setArrows] = useState([]);
+  const [positions, setPositions] = useState({});
 
   const addWorker = () => {
     if (workerInput.trim()) {
@@ -40,6 +41,15 @@ export default function RigJBDBuilder() {
 
   const deleteTask = (index) => {
     setTasks(tasks.filter((_, i) => i !== index));
+  };
+
+  const moveTask = (index, direction) => {
+    const newTasks = [...tasks];
+    const targetIndex = index + direction;
+    if (targetIndex >= 0 && targetIndex < tasks.length) {
+      [newTasks[index], newTasks[targetIndex]] = [newTasks[targetIndex], newTasks[index]];
+      setTasks(newTasks);
+    }
   };
 
   const addZone = (color) => {
@@ -66,13 +76,24 @@ export default function RigJBDBuilder() {
     setArrows(arrows.filter(a => a.id !== id));
   };
 
+  const updatePosition = (index, data) => {
+    setPositions({ ...positions, [index]: { x: data.x, y: data.y } });
+  };
+
+  const handleGeneratePDF = async () => {
+    const input = document.getElementById('jbd-preview');
+    if (!input) return;
+    const canvas = await html2canvas(input);
+    const dataUrl = canvas.toDataURL('image/png');
+    const win = window.open();
+    win.document.write('<iframe src="' + dataUrl + '" width="800"></iframe>');
+  };
+
   return (
     <div style={{ backgroundColor: '#005670', fontFamily: 'Quantico, sans-serif', color: 'white', padding: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <img src="/Transocean Logo_White.png" alt="Transocean Logo" width={300} height={100} />
-        <div style={{ marginLeft: '10px', fontSize: '38px', fontWeight: 'bold' }}>
-          JBD Builder
-        </div>
+        <div style={{ marginLeft: '10px', fontSize: '38px', fontWeight: 'bold' }}>JBD Builder</div>
       </div>
       <div style={{ width: '100%', height: '8px', backgroundColor: '#FFB511', marginTop: '4px' }}></div>
 
@@ -82,7 +103,7 @@ export default function RigJBDBuilder() {
         <input placeholder="PIC" value={pic} onChange={(e) => setPic(e.target.value)} style={{ width: '100%', margin: '5px 0' }} />
         <textarea placeholder="Line of Fire Hazard" value={lofHazard} onChange={(e) => setLofHazard(e.target.value)} style={{ width: '100%', margin: '5px 0' }} />
 
-        <div style={{ margin: '10px 0' }}>
+        <div>
           <label>Select Diagram:</label>
           <select value={diagram} onChange={(e) => setDiagram(e.target.value)} style={{ width: '100%', margin: '5px 0' }}>
             <option value="Drillfloor">Drillfloor</option>
@@ -91,7 +112,7 @@ export default function RigJBDBuilder() {
           </select>
         </div>
 
-        <div style={{ margin: '10px 0' }}>
+        <div>
           <input placeholder="Add Personnel" value={workerInput} onChange={(e) => setWorkerInput(e.target.value)} />
           <button onClick={addWorker}>Add</button>
           <ul>
@@ -104,7 +125,7 @@ export default function RigJBDBuilder() {
           </ul>
         </div>
 
-        <div style={{ margin: '10px 0' }}>
+        <div>
           <input placeholder="Task Step" value={taskInput} onChange={(e) => setTaskInput(e.target.value)} />
           <select multiple value={selectedWorkers} onChange={(e) => setSelectedWorkers(Array.from(e.target.selectedOptions, opt => opt.value))}>
             {workers.map((w, i) => (
@@ -115,19 +136,29 @@ export default function RigJBDBuilder() {
           <ul>
             {tasks.map((t, i) => (
               <li key={i}>
-                {i + 1}. {t.step} (Persons: {t.persons.join(', ')}) <button onClick={() => deleteTask(i)}>❌</button>
+                {i + 1}. {t.step} (Persons: {t.persons.join(', ')}) 
+                <button onClick={() => moveTask(i, -1)}>⬆</button>
+                <button onClick={() => moveTask(i, 1)}>⬇</button>
+                <button onClick={() => deleteTask(i)}>❌</button>
               </li>
             ))}
           </ul>
         </div>
 
-        <div style={{ position: 'relative', width: '800px', height: '400px', border: '1px solid white' }}>
+        <div id="jbd-preview" style={{ position: 'relative', width: '800px', height: '400px', border: '1px solid white' }}>
           <img src={`/${diagram}.png`} alt={diagram} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          {workers.map((_, i) => (
+            <Draggable key={i} position={positions[i] || { x: 0, y: 0 }} onStop={(e, data) => updatePosition(i, data)}>
+              <div style={{ position: 'absolute', width: '30px', height: '30px', borderRadius: '50%', backgroundColor: colorPalette[i % colorPalette.length], display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '14px', cursor: 'move' }}>
+                {i + 1}
+              </div>
+            </Draggable>
+          ))}
           {zones.map(z => (
             <Rnd key={z.id} size={{ width: z.w, height: z.h }} position={{ x: z.x, y: z.y }}
               onDragStop={(e, d) => updateZone(z.id, { x: d.x, y: d.y })}
               onResizeStop={(e, dir, ref, delta, pos) => updateZone(z.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), ...pos })}
-              style={{ border: `2px dashed ${z.color}`, backgroundColor: `rgba(255,255,255,0.1)` }}>
+              style={{ backgroundColor: z.color, opacity: 0.9 }}>
               <button onClick={() => deleteZone(z.id)}>❌</button>
             </Rnd>
           ))}
@@ -135,8 +166,8 @@ export default function RigJBDBuilder() {
             <Rnd key={a.id} size={{ width: a.w, height: a.h }} position={{ x: a.x, y: a.y }}
               onDragStop={(e, d) => updateArrow(a.id, { x: d.x, y: d.y })}
               onResizeStop={(e, dir, ref, delta, pos) => updateArrow(a.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), ...pos })}
-              style={{ backgroundColor: 'white' }}>
-              <div style={{ transform: a.direction === 'vertical' ? 'rotate(90deg)' : a.direction === 'left' ? 'rotate(45deg)' : a.direction === 'right' ? 'rotate(-45deg)' : 'none' }}>
+              style={{ backgroundColor: 'blue' }}>
+              <div style={{ transform: a.direction === 'vertical' ? 'rotate(90deg)' : a.direction === 'left' ? 'rotate(45deg)' : a.direction === 'right' ? 'rotate(-45deg)' : 'none', color: 'white' }}>
                 ➡
               </div>
               <button onClick={() => updateArrow(a.id, { direction: 'horizontal' })}>↔</button>
@@ -153,6 +184,7 @@ export default function RigJBDBuilder() {
           <button onClick={() => addZone('red')}>Add Red Zone</button>
           <button onClick={() => addZone('black')}>Add Black Zone</button>
           <button onClick={addArrow}>Add Arrow</button>
+          <button onClick={handleGeneratePDF}>Generate PDF Preview</button>
         </div>
       </div>
     </div>
