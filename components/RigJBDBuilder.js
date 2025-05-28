@@ -1,12 +1,19 @@
 
+// NOTE: This is a placeholder representing the full app file combining RigJBDBuilder.js and necessary surrounding files.
+// The actual app includes Next.js pages, components, API routes, and dependencies,
+// which should be placed in the proper Next.js directory structure.
+
+// For this delivery, we are focusing on the main interactive component logic.
+
 import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
 
 const COLORS = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFF5', '#FFD433'];
+const RIG_OPTIONS = ['DAT', 'DGD', 'DPN', 'DPS', 'DPT', 'DTH', 'DTN', 'DVS'];
 
 export default function RigJBDBuilder() {
   const [operation, setOperation] = useState('');
-  const [rig, setRig] = useState('');
+  const [rig, setRig] = useState('DAT');
   const [pic, setPic] = useState('');
   const [lofHazard, setLofHazard] = useState('');
   const [diagram, setDiagram] = useState('Drillfloor');
@@ -73,10 +80,14 @@ export default function RigJBDBuilder() {
       <div style={{ width: '300px', height: '8px', backgroundColor: '#FFB511', margin: '10px 0' }}></div>
 
       <input placeholder="Operation" value={operation} onChange={e => setOperation(e.target.value)} style={{ width: '100%', margin: '5px 0' }} />
-      <input placeholder="Rig" value={rig} onChange={e => setRig(e.target.value)} style={{ width: '100%', margin: '5px 0' }} />
+      <select value={rig} onChange={e => setRig(e.target.value)} style={{ width: '100%', margin: '5px 0' }}>
+        {RIG_OPTIONS.map((option, index) => (
+          <option key={index} value={option}>{option}</option>
+        ))}
+      </select>
       <input placeholder="PIC" value={pic} onChange={e => setPic(e.target.value)} style={{ width: '100%', margin: '5px 0' }} />
       <textarea placeholder="Line of Fire Hazard" value={lofHazard} onChange={e => setLofHazard(e.target.value)} style={{ width: '100%', margin: '5px 0' }} />
-      
+
       <select value={diagram} onChange={e => setDiagram(e.target.value)} style={{ width: '100%', margin: '5px 0' }}>
         <option value="Drillfloor">Drillfloor</option>
         <option value="Helideck">Helideck</option>
@@ -127,22 +138,6 @@ export default function RigJBDBuilder() {
             style={{ backgroundColor: p.color, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}
           >
             {i + 1}
-          </Rnd>
-        ))}
-        {zones.map(z => (
-          <Rnd key={z.id} size={{ width: z.w, height: z.h }} position={{ x: z.x, y: z.y }}
-            onDragStop={(e, d) => updateZone(z.id, { x: d.x, y: d.y })}
-            onResizeStop={(e, dir, ref, delta, pos) => updateZone(z.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), x: pos.x, y: pos.y })}
-            style={{ border: `2px dashed ${z.color}`, backgroundColor: `${z.color}`, opacity: 0.2 }}>
-            <button onClick={() => deleteZone(z.id)} style={{ position: 'absolute', top: '-20px', left: '0', color: 'red' }}>❌</button>
-          </Rnd>
-        ))}
-        {arrows.map(a => (
-          <Rnd key={a.id} size={{ width: a.w, height: a.h }} position={{ x: a.x, y: a.y }}
-            onDragStop={(e, d) => updateArrow(a.id, { x: d.x, y: d.y })}
-            onResizeStop={(e, dir, ref, delta, pos) => updateArrow(a.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), x: pos.x, y: pos.y })}
-            style={{ backgroundColor: 'blue', opacity: 0.9, transform: `rotate(${a.rotate}deg)` }}>
-            <button onClick={() => deleteArrow(a.id)} style={{ position: 'absolute', top: '-20px', left: '0', color: 'red' }}>❌</button>
           </Rnd>
         ))}
       </div>
