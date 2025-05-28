@@ -10,8 +10,8 @@ export default function RigJBDBuilder() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState('');
 
-  const addArrow = () => {
-    setArrows([...arrows, { id: Date.now(), x: 50, y: 50, w: 50, h: 10, rotate: 0 }]);
+  const addArrow = (rotation) => {
+    setArrows([...arrows, { id: Date.now(), x: 50, y: 50, w: 50, h: 10, rotate: rotation }]);
   };
 
   const updateArrow = (id, newProps) => {
@@ -62,7 +62,12 @@ export default function RigJBDBuilder() {
         <input value={pic} onChange={e => setPic(e.target.value)} style={{ width: '100%' }} />
       </div>
 
-      <button onClick={addArrow} style={{ marginBottom: '10px', padding: '5px 10px' }}>➕ Add Blue Arrow</button>
+      <div style={{ marginBottom: '10px' }}>
+        <button onClick={() => addArrow(0)} style={{ marginRight: '5px' }}>➕ Horizontal Arrow</button>
+        <button onClick={() => addArrow(90)} style={{ marginRight: '5px' }}>➕ Vertical Arrow</button>
+        <button onClick={() => addArrow(45)} style={{ marginRight: '5px' }}>➕ 45° Left Arrow</button>
+        <button onClick={() => addArrow(315)}>➕ 45° Right Arrow</button>
+      </div>
 
       <div style={{ width: '800px', height: '600px', position: 'relative', backgroundColor: '#FFFFFF', color: 'black' }}>
         {arrows.map(a => (
@@ -78,13 +83,7 @@ export default function RigJBDBuilder() {
             >
               <div style={{ width: '100%', height: '100%' }}></div>
             </Rnd>
-            <div style={{ display: 'flex', gap: '5px', marginTop: '5px' }}>
-              <button onClick={() => updateArrow(a.id, { rotate: 0 })}>↔️</button>
-              <button onClick={() => updateArrow(a.id, { rotate: 90 })}>↕️</button>
-              <button onClick={() => updateArrow(a.id, { rotate: 45 })}>↗️</button>
-              <button onClick={() => updateArrow(a.id, { rotate: 315 })}>↘️</button>
-              <button onClick={() => deleteArrow(a.id)} style={{ color: 'red' }}>❌</button>
-            </div>
+            <button onClick={() => deleteArrow(a.id)} style={{ marginTop: '5px', color: 'red' }}>❌ Delete Arrow</button>
           </div>
         ))}
       </div>
