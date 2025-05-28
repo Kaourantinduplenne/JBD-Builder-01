@@ -71,20 +71,24 @@ export default function RigJBDBuilder() {
 
       <div style={{ width: '800px', height: '600px', position: 'relative', backgroundColor: '#FFFFFF', color: 'black' }}>
         {arrows.map(a => (
-          <div key={a.id} style={{ position: 'absolute', left: a.x, top: a.y, transform: `rotate(${a.rotate}deg)` }}>
-            <Rnd
-              size={{ width: a.w, height: a.h }}
-              position={{ x: 0, y: 0 }}
-              onDragStop={(e, d) => updateArrow(a.id, { x: a.x + d.x, y: a.y + d.y })}
-              onResizeStop={(e, dir, ref, delta, pos) =>
-                updateArrow(a.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height) })
-              }
-              style={{ backgroundColor: 'blue', opacity: 0.9, cursor: 'pointer' }}
-            >
-              <div style={{ width: '100%', height: '100%' }}></div>
-            </Rnd>
-            <button onClick={() => deleteArrow(a.id)} style={{ marginTop: '5px', color: 'red' }}>❌ Delete Arrow</button>
-          </div>
+          <Rnd
+            key={a.id}
+            size={{ width: a.w, height: a.h }}
+            position={{ x: a.x, y: a.y }}
+            onDragStop={(e, d) => updateArrow(a.id, { x: d.x, y: d.y })}
+            onResizeStop={(e, dir, ref, delta, pos) =>
+              updateArrow(a.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), x: pos.x, y: pos.y })
+            }
+            style={{
+              backgroundColor: 'blue',
+              opacity: 0.9,
+              cursor: 'pointer',
+              transform: `rotate(${a.rotate}deg)`
+            }}
+          >
+            <div style={{ width: '100%', height: '100%' }}></div>
+            <button onClick={() => deleteArrow(a.id)} style={{ marginTop: '5px', color: 'red', position: 'absolute', top: '-25px', left: '0' }}>❌</button>
+          </Rnd>
         ))}
       </div>
 
