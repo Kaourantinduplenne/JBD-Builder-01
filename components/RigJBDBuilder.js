@@ -11,7 +11,13 @@ export default function RigJBDBuilder() {
   const [newTask, setNewTask] = useState('');
 
   const addArrow = (rotation) => {
-    setArrows([...arrows, { id: Date.now(), x: 50, y: 50, w: 50, h: 10, rotate: rotation }]);
+    let width = 50, height = 10;
+    if (rotation === 90) {
+      width = 10; height = 50;
+    } else if (rotation === 45 || rotation === 315) {
+      width = 40; height = 40;
+    }
+    setArrows([...arrows, { id: Date.now(), x: 50, y: 50, w: width, h: height, rotate: rotation }]);
   };
 
   const updateArrow = (id, newProps) => {
