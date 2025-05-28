@@ -15,7 +15,7 @@ export default function RigJBDBuilder() {
     if (rotation === 90) {
       width = 10; height = 50;
     } else if (rotation === 45 || rotation === 315) {
-      width = 10; height = 50;
+      width = 40; height = 40;
     }
     setArrows([...arrows, { id: Date.now(), x: 50, y: 50, w: width, h: height, rotate: rotation }]);
   };
