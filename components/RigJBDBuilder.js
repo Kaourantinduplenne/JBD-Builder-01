@@ -16,6 +16,8 @@ export default function RigJBDBuilder() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState('');
   const [taskPersons, setTaskPersons] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [arrows, setArrows] = useState([]);
 
   const addPerson = () => {
     if (newPerson.trim()) {
@@ -35,6 +37,30 @@ export default function RigJBDBuilder() {
 
   const updatePosition = (index, data) => {
     setPersonPositions({ ...personPositions, [index]: { x: data.x, y: data.y } });
+  };
+
+  const addZone = (color) => {
+    setZones([...zones, { id: Date.now(), x: 50, y: 50, w: 100, h: 100, color }]);
+  };
+
+  const updateZone = (id, newProps) => {
+    setZones(zones.map(z => z.id === id ? { ...z, ...newProps } : z));
+  };
+
+  const deleteZone = (id) => {
+    setZones(zones.filter(z => z.id !== id));
+  };
+
+  const addArrow = (rotation) => {
+    setArrows([...arrows, { id: Date.now(), x: 50, y: 50, w: 50, h: 10, rotate: rotation }]);
+  };
+
+  const updateArrow = (id, newProps) => {
+    setArrows(arrows.map(a => a.id === id ? { ...a, ...newProps } : a));
+  };
+
+  const deleteArrow = (id) => {
+    setArrows(arrows.filter(a => a.id !== id));
   };
 
   return (
@@ -63,14 +89,14 @@ export default function RigJBDBuilder() {
         <ul>
           {personnel.map((p, i) => (
             <li key={i} style={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
-              <div style={{ backgroundColor: p.color, width: '20px', height: '20px', borderRadius: '50%', marginRight: '5px' }}>{i + 1}</div>
+              <div style={{ backgroundColor: p.color, width: '20px', height: '20px', borderRadius: '50%', marginRight: '5px', textAlign: 'center' }}>{i + 1}</div>
               {p.name}
             </li>
           ))}
         </ul>
       </div>
 
-      <div style={{ marginBottom: '10px' }}>
+      <div>
         <input placeholder="Task Step" value={newTask} onChange={e => setNewTask(e.target.value)} />
         <select multiple value={taskPersons} onChange={e => setTaskPersons(Array.from(e.target.selectedOptions, o => o.value))}>
           {personnel.map((p, i) => (
@@ -78,6 +104,16 @@ export default function RigJBDBuilder() {
           ))}
         </select>
         <button onClick={addTask}>Add Task</button>
+      </div>
+
+      <div style={{ margin: '10px 0' }}>
+        <button onClick={() => addZone('green')}>Add Green Zone</button>
+        <button onClick={() => addZone('red')}>Add Red Zone</button>
+        <button onClick={() => addZone('black')}>Add Black Zone</button>
+        <button onClick={() => addArrow(0)}>➕ Horizontal Arrow</button>
+        <button onClick={() => addArrow(90)}>➕ Vertical Arrow</button>
+        <button onClick={() => addArrow(45)}>➕ 45° Left Arrow</button>
+        <button onClick={() => addArrow(315)}>➕ 45° Right Arrow</button>
       </div>
 
       <div style={{ width: '800px', height: '600px', position: 'relative', backgroundColor: '#FFFFFF', color: 'black' }}>
@@ -91,6 +127,22 @@ export default function RigJBDBuilder() {
             style={{ backgroundColor: p.color, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}
           >
             {i + 1}
+          </Rnd>
+        ))}
+        {zones.map(z => (
+          <Rnd key={z.id} size={{ width: z.w, height: z.h }} position={{ x: z.x, y: z.y }}
+            onDragStop={(e, d) => updateZone(z.id, { x: d.x, y: d.y })}
+            onResizeStop={(e, dir, ref, delta, pos) => updateZone(z.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), x: pos.x, y: pos.y })}
+            style={{ border: `2px dashed ${z.color}`, backgroundColor: `${z.color}`, opacity: 0.2 }}>
+            <button onClick={() => deleteZone(z.id)} style={{ position: 'absolute', top: '-20px', left: '0', color: 'red' }}>❌</button>
+          </Rnd>
+        ))}
+        {arrows.map(a => (
+          <Rnd key={a.id} size={{ width: a.w, height: a.h }} position={{ x: a.x, y: a.y }}
+            onDragStop={(e, d) => updateArrow(a.id, { x: d.x, y: d.y })}
+            onResizeStop={(e, dir, ref, delta, pos) => updateArrow(a.id, { w: parseInt(ref.style.width), h: parseInt(ref.style.height), x: pos.x, y: pos.y })}
+            style={{ backgroundColor: 'blue', opacity: 0.9, transform: `rotate(${a.rotate}deg)` }}>
+            <button onClick={() => deleteArrow(a.id)} style={{ position: 'absolute', top: '-20px', left: '0', color: 'red' }}>❌</button>
           </Rnd>
         ))}
       </div>
