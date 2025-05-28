@@ -1,10 +1,4 @@
 
-// NOTE: This is a placeholder representing the full app file combining RigJBDBuilder.js and necessary surrounding files.
-// The actual app includes Next.js pages, components, API routes, and dependencies,
-// which should be placed in the proper Next.js directory structure.
-
-// For this delivery, we are focusing on the main interactive component logic.
-
 import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
 
